@@ -1,0 +1,41 @@
+
+#!/bin/bash
+
+# Reset the iptables to open the firewall ports on the local VM
+# Access to ports is controlled from OCI Security rules
+
+/opt/scripts/reset_iptables.sh
+
+fileName=$(basename $BASH_SOURCE)
+
+wls_domain_name=$(curl -s -S -H "Authorization: Bearer Oracle" -L http://169.254.169.254/opc/v2/instance/metadata/wls_domain_name)
+data_mount_point=$(curl -s -S -H "Authorization: Bearer Oracle" -L http://169.254.169.254/opc/v2/instance/metadata/data_vol_mount_point)
+device=$(curl -s -S -H "Authorization: Bearer Oracle" -L http://169.254.169.254/opc/v2/instance/metadata/device)
+logs_dir=$(curl -s -S -H "Authorization: Bearer Oracle" -L http://169.254.169.254/opc/v2/instance/metadata/logs_dir)
+log_file="${logs_dir}/reboot_$(date "+%m.%d.%Y-%H.%M.%S").log"
+domain_dir=$(curl -s -S -H "Authorization: Bearer Oracle" -L http://169.254.169.254/opc/v2/instance/metadata/domain_dir)
+wls_version=$(curl -s -S -H "Authorization: Bearer Oracle" -L http://169.254.169.254/opc/v2/instance/metadata/wls_version)
+
+function log() {
+     while IFS= read -r line; do
+         DATE=`date '+%Y-%m-%d %H:%M:%S.%N'`
+         echo "$DATE ==> $line"
+     done
+ }
+
+#echo "Mounting data volume." | log >> $log_file
+#sudo /opt/scripts/attachNmountVolume.sh $data_mount_point $device $log_file
+
+#provCompletedMarker=${domain_dir}/${wls_domain_name}/provCompletedMarker
+
+#if [ -f $provCompletedMarker ]; then
+#    echo "Restarting servers." | log >> $log_file
+#    if [ $wls_version == '12.2.1.3' ] || [ $wls_version == '12.2.1.4' ]; then
+#        sudo su - oracle -c /opt/scripts/restart/restart_12c_servers.sh >> $log_file 2>&1
+#    else
+#        sudo su - oracle -c /opt/scripts/restart/restart_11g_servers.sh >> $log_file 2>&1
+#    fi
+#    echo "Servers restarted servers." | log >> $log_file
+#else
+#    echo $provCompletedMarker" marker not found" | log >> $log_file
+#fi
